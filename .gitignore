@@ -20,3 +20,5 @@ target
 nbactions.xml
 licenseheader.txt
 
+/build/
+/dist/
