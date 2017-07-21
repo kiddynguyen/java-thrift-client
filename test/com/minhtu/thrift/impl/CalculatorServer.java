@@ -13,17 +13,14 @@ import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TServerTransport;
 import org.apache.thrift.transport.TTransportException;
 
-public class Server {
+public class CalculatorServer {
 	public static final int PORT = 9090;
 
 	public static void main(String[] args) {
 		try {
 			CalculatorHandler handler = new CalculatorHandler();
 			Calculator.Processor processor = new Calculator.Processor(handler);
-//            TServer server = createThreadPoolServer(processor);
-//            TServer server = createSimpleBlockingServer(processor);
-            TServer server = createNonblockingServer(processor);
-            
+            TServer server = createSimpleServer(processor);
 			System.out.println("Starting the simple server...");
 			server.serve();
 		} catch (Exception x) {
@@ -31,21 +28,25 @@ public class Server {
 		}
 	}
     
-    public static TServer createSimpleBlockingServer(Calculator.Processor processor) throws TTransportException {
+    /** Single thread blocking server */
+    public static TServer createSimpleServer(Calculator.Processor processor) throws TTransportException {
         TServerTransport transport = new TServerSocket(PORT);
 		return new TSimpleServer(new Args(transport).processor(processor));
     }
     
+    /** One thread for accepting new request and one thread pool for handling requests */
     public static TServer createThreadPoolServer(Calculator.Processor processor) throws TTransportException {
         TServerTransport transport = new TServerSocket(PORT);
 		return new TThreadPoolServer(new TThreadPoolServer.Args(transport).processor(processor));
     }
     
+    /** Nonblocking server */
     public static TServer createNonblockingServer(Calculator.Processor processor) throws TTransportException {
         TNonblockingServerTransport transport = new TNonblockingServerSocket(PORT);
 		return new TNonblockingServer(new TNonblockingServer.Args(transport).processor(processor));
     }
     
+    /** One thread pool for accepting new connections and another thread pool for handling requests */
     public static TServer createHsHaServer(Calculator.Processor processor) throws TTransportException {
         return null;
     }
